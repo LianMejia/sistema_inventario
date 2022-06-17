@@ -74,10 +74,10 @@ class ContainerLogin extends StatelessWidget {
           ),
           MaterialButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, 'principalScreen');
+              Navigator.pushReplacementNamed(context, 'home');
             },
             height: 40,
-            color: Colors.blue,
+            color: Colors.blueAccent,
             shape: const StadiumBorder(),
             child: const Text(
               'Iniciar Sesion',
