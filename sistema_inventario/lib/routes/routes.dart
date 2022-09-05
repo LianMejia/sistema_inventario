@@ -6,6 +6,8 @@ import 'package:sistema_inventario/screens/pedidos_screen.dart';
 import 'package:sistema_inventario/screens/principal_screen_bnb.dart';
 import 'package:sistema_inventario/screens/register_screen.dart';
 
+import '../screens/check_auth_screen.dart';
+
 Map<String, WidgetBuilder> getRoutes() {
   return <String, WidgetBuilder>{
     '/': (BuildContext context) => LoginScreen(),
@@ -14,5 +16,6 @@ Map<String, WidgetBuilder> getRoutes() {
     'principalScreen': (BuildContext context) => PrincipalScreenBnb(),
     'misPedidos': (BuildContext context) => MisPedidos(),
     'carrito': (BuildContext context) => CarritoCompras(),
+    'checkAuthScreen': (BuildContext context) => CheckAuthScreen()
   };
 }

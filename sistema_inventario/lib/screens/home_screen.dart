@@ -1,12 +1,14 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:provider/provider.dart';
 
-import 'package:badges/badges.dart';
+import '../services/auth_services.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authServices = Provider.of<AuthService>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -88,6 +90,53 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 onTap: () {},
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  size: 28,
+                ),
+                title: const Text(
+                  'Cerrar Sesion',
+                  style: TextStyle(fontSize: 16, color: Colors.red),
+                ),
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          title:
+                              const Text('¿Esta seguro de cerrar la sesion?'),
+                          actions: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton(
+                                    onPressed: () {
+                                      authServices.logOut();
+                                      Navigator.pushReplacementNamed(
+                                          context, '/');
+                                    },
+                                    child: const Text(
+                                      'Salir',
+                                      style: TextStyle(color: Colors.red),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      'Cancelar',
+                                      style: TextStyle(color: Colors.black),
+                                    ))
+                              ],
+                            )
+                          ],
+                        );
+                      });
+                },
               )
             ],
           ),
@@ -102,6 +151,8 @@ class ContainerHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -118,10 +169,10 @@ class ContainerHomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(
+          /* const SizedBox(
             height: 20,
-          ),
-          Row(
+          ), */
+          /* Row(
             children: [
               Container(
                 decoration: BoxDecoration(
@@ -154,11 +205,102 @@ class ContainerHomeScreen extends StatelessWidget {
                 child: const Center(child: Text('Calamares')),
               ),
             ],
-          ),
+          ), */
           const SizedBox(
             height: 20,
           ),
-          Row(
+          StreamBuilder<QuerySnapshot>(
+            stream:
+                FirebaseFirestore.instance.collection('productos').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const ScrollPhysics(),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot x = snapshot.data!.docs[index];
+                    if (snapshot.data == null) {
+                      return SizedBox();
+                    } else {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /* Text(x['nombreProducto']) */
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10)),
+                              child: Container(
+                                  height: 140,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(0)),
+                                  child: Image.network(
+                                    x['imagenProducto'],
+                                    fit: BoxFit.cover,
+                                  )),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10))),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    x['nombreProducto'],
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(
+                                    height: 12,
+                                  ),
+                                  Text(
+                                    '\$${x['costoVentaProducto']}',
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(
+                                    height: 8,
+                                  ),
+                                  Container(
+                                    margin:
+                                        EdgeInsets.symmetric(horizontal: 12),
+                                    child: MaterialButton(
+                                      onPressed: () {},
+                                      color: Colors.blueAccent,
+                                      shape: const StadiumBorder(),
+                                      child: const Text(
+                                        'Agregar al carrito',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      minWidth: double.infinity,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                );
+              } else {
+                return SizedBox();
+              }
+            },
+          )
+          /* Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
@@ -207,7 +349,7 @@ class ContainerHomeScreen extends StatelessWidget {
                 ),
               ),
             ],
-          )
+          ) */
         ],
       ),
     );
